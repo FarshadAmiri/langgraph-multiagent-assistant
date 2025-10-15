@@ -79,7 +79,7 @@ echo "OPENAI_API_KEY=your-key-here" > .env
 
 ## 💻 Usage
 
-### Interactive Mode
+### Option 1: CLI Interactive Mode
 
 Run the CLI in interactive mode:
 
@@ -87,13 +87,42 @@ Run the CLI in interactive mode:
 python -m infomind.main
 ```
 
-### Single Query Mode
+### Option 2: CLI Single Query Mode
 
 Run a single query and exit:
 
 ```bash
 python -m infomind.main "Calculate the average of 10, 20, 30"
 ```
+
+### Option 3: Streamlit Web UI
+
+Run the Streamlit web interface:
+
+```bash
+streamlit run infomind/streamlit_app.py
+```
+
+This provides a user-friendly web interface with:
+- Real-time agent activity visualization
+- Intermediate results display
+- Recent query history
+- Example queries
+- Performance metrics
+
+### Option 4: Programmatic Usage
+
+Use InfoMind in your Python code:
+
+```python
+from infomind.graph import MultiAgentGraph
+
+graph = MultiAgentGraph()
+result = graph.run("Calculate the sum of 10 and 20")
+print(result["final_answer"]["output"])
+```
+
+See `examples.py` for more usage examples.
 
 ### Example Queries
 
