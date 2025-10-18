@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Dict, Any
 import json
 
-from .graph import MultiAgentGraph
-from .memory import MemoryStore
-from .utils.logger import get_logger
+from infomind.graph import MultiAgentGraph
+from infomind.memory import MemoryStore
+from infomind.utils.logger import get_logger
 
 
 class InfoMindCLI:
@@ -103,17 +103,50 @@ class InfoMindCLI:
             print("📊 Intermediate Results:")
             print("-" * 70)
             
+            # WebSearch Agent Details
             if "websearch_results" in state:
-                print("✓ Web Search: Completed")
+                ws_meta = state["websearch_results"].get("metadata", {})
+                print("\n🔍 WEB SEARCH AGENT:")
+                print(f"   Original Query: {ws_meta.get('original_query', 'N/A')}")
+                
+                if ws_meta.get('search_type') == 'multi-entity_comparison':
+                    print(f"   Search Type: Multi-Entity Comparison")
+                    entities = ws_meta.get('comparison_entities', [])
+                    print(f"   Entities: {', '.join(entities)}")
+                    print(f"   Results Found: {ws_meta.get('result_count', 0)}")
+                else:
+                    print(f"   Final Query: {ws_meta.get('final_query', 'N/A')}")
+                    print(f"   Search Attempts: {ws_meta.get('search_attempts', 1)}")
+                    print(f"   Results Found: {ws_meta.get('result_count', 0)}")
+                    print(f"   Results Validated: {'✓' if ws_meta.get('validated') else '✗'}")
+                
+                print("   Status: ✓ Completed")
             
+            # Scraper Agent Details
             if "scraper_results" in state:
-                print("✓ Web Scraper: Completed")
+                sc_meta = state["scraper_results"].get("metadata", {})
+                print("\n🌐 WEB SCRAPER AGENT:")
+                print(f"   URLs Scraped: {sc_meta.get('urls_scraped', 0)}")
+                if sc_meta.get('urls_scraped', 0) > 0:
+                    sources = state["scraper_results"].get("sources", [])
+                    for i, url in enumerate(sources[:3], 1):
+                        print(f"   {i}. {url[:60]}...")
+                print("   Status: ✓ Completed")
             
+            # Math Agent Details
             if "math_results" in state:
-                print("✓ Math Calculation: Completed")
+                print("\n🔢 MATH AGENT:")
+                output = state["math_results"].get("output", "")
+                preview = output[:100] if len(output) > 100 else output
+                print(f"   Result: {preview}")
+                print("   Status: ✓ Completed")
             
+            # Comparison Agent Details
             if "comparison_results" in state:
-                print("✓ Comparison: Completed")
+                comp_meta = state["comparison_results"].get("metadata", {})
+                print("\n⚖️  COMPARISON AGENT:")
+                print(f"   Items Compared: {comp_meta.get('items_compared', 0)}")
+                print("   Status: ✓ Completed")
             
             print("-" * 70)
             

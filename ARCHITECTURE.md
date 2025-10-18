@@ -3,11 +3,11 @@
 ## 🏗️ High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         User Interfaces                          │
+┌────────────────────────────────────────────────────────────────┐
+│                         User Interfaces                        │
 │  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
-│  │  CLI Mode   │  │ Streamlit UI │  │  Python API         │   │
-│  │  (main.py)  │  │ (streamlit_  │  │  (graph.run())      │   │
+│  │  CLI Mode   │  │ Streamlit UI │  │  Python API          │   │
+│  │  (main.py)  │  │ (streamlit_  │  │  (graph.run())       │   │
 │  │             │  │  app.py)     │  │                      │   │
 │  └──────┬──────┘  └──────┬───────┘  └──────────┬───────────┘   │
 └─────────┼────────────────┼─────────────────────┼───────────────┘
@@ -16,15 +16,15 @@
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    LangGraph Orchestration                       │
-│                          (graph.py)                              │
-│                                                                   │
+│                    LangGraph Orchestration                      │
+│                          (graph.py)                             │
+│                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐  │
-│  │                     StateGraph Workflow                    │  │
-│  │                                                            │  │
+│  │                     StateGraph Workflow                   │  │
+│  │                                                           │  │
 │  │   [Entry] → [Controller] → [Execute Agents]               │  │
-│  │                                    ↓                       │  │
-│  │                              [Synthesizer] → [END]         │  │
+│  │                                    ↓                      │  │
+│  │                              [Synthesizer] → [END]        │  │
 │  └───────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
                            │
@@ -33,7 +33,7 @@
         ▼                                     ▼
 ┌──────────────────┐              ┌──────────────────────┐
 │  Controller      │              │  Agent Executor      │
-│  Agent           │──[routing]──▶│  (Sequential)        │
+│  Agent           │──[routing]──▶│  (Sequential)       │
 │                  │              │                      │
 │  • Query         │              │  Executes agents     │
 │    analysis      │              │  based on routing    │

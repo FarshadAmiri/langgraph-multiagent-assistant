@@ -45,6 +45,11 @@ class WebScraperAgent(BaseAgent):
             # Scrape each URL
             scraped_content = []
             for url in urls[:3]:  # Limit to 3 URLs
+                # Skip empty or invalid URLs
+                if not url or not url.startswith(('http://', 'https://')):
+                    self.logger.warning(f"Skipping invalid URL: {url}")
+                    continue
+                    
                 content = self._scrape_url(url)
                 if content:
                     scraped_content.append({
@@ -85,7 +90,9 @@ class WebScraperAgent(BaseAgent):
         # Extract from search results if available
         if "websearch_results" in state:
             search_sources = state["websearch_results"].get("sources", [])
+            # Take top 3 URLs from search results for scraping
             urls.extend(search_sources[:3])
+            self.logger.info(f"Found {len(search_sources)} URLs from search results, will scrape top 3")
         
         return list(set(urls))  # Remove duplicates
     
@@ -112,8 +119,8 @@ class WebScraperAgent(BaseAgent):
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
             text = ' '.join(chunk for chunk in chunks if chunk)
             
-            # Limit length
-            return text[:2000] if text else "No content extracted"
+            # Limit length but allow more content for better context (was 2000, now 5000)
+            return text[:5000] if text else "No content extracted"
             
         except Exception as e:
             self.logger.error(f"Error scraping {url}: {e}")

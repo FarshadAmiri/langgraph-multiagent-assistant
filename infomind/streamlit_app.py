@@ -5,8 +5,8 @@ import time
 from datetime import datetime
 from typing import Dict, Any
 
-from .graph import MultiAgentGraph
-from .memory import MemoryStore
+from infomind.graph import MultiAgentGraph
+from infomind.memory import MemoryStore
 
 
 def init_session_state():
@@ -27,30 +27,153 @@ def display_agent_activity(agents_to_call):
 
 
 def display_intermediate_results(state: Dict[str, Any]):
-    """Display intermediate results from agents"""
-    with st.expander("📊 Intermediate Results", expanded=False):
-        cols = st.columns(2)
+    """Display detailed intermediate results from agents with logs"""
+    with st.expander("📊 Detailed Agent Logs & Results", expanded=True):
         
-        col_idx = 0
+        # WebSearch Agent
         if "websearch_results" in state:
-            with cols[col_idx % 2]:
-                st.success("✓ Web Search: Completed")
-                col_idx += 1
+            st.markdown("### 🔍 Web Search Agent")
+            ws_meta = state["websearch_results"].get("metadata", {})
+            
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.markdown("**Query Information:**")
+                original_q = ws_meta.get('original_query', 'N/A')
+                st.text(f"Original: {original_q[:80]}...")
+                
+                if ws_meta.get('search_type') == 'multi-entity_comparison':
+                    st.info("🔀 Multi-Entity Comparison Search")
+                    entities = ws_meta.get('comparison_entities', [])
+                    st.text(f"Entities: {', '.join(entities)}")
+                else:
+                    final_q = ws_meta.get('final_query', 'N/A')
+                    st.text(f"Optimized: {final_q[:80]}...")
+                    
+                    attempts = ws_meta.get('search_attempts', 1)
+                    if attempts > 1:
+                        st.warning(f"⚠️ Required {attempts} search attempts")
+            
+            with col2:
+                st.markdown("**Results:**")
+                result_count = ws_meta.get('result_count', 0)
+                validated = ws_meta.get('validated', False)
+                
+                if result_count > 0:
+                    st.success(f"✓ Found {result_count} results")
+                else:
+                    st.error("✗ No results found")
+                
+                if ws_meta.get('search_attempts', 1) == 1:
+                    if validated:
+                        st.success("✓ Results validated as relevant")
+                    else:
+                        st.warning("⚠️ Results may not be fully relevant")
+            
+            # Show sources
+            sources = state["websearch_results"].get("sources", [])
+            if sources:
+                with st.expander(f"🔗 View {len(sources)} Search Sources", expanded=False):
+                    for i, source in enumerate(sources, 1):
+                        st.markdown(f"{i}. [{source[:60]}...]({source})")
+            
+            st.markdown("---")
         
+        # Scraper Agent
         if "scraper_results" in state:
-            with cols[col_idx % 2]:
-                st.success("✓ Web Scraper: Completed")
-                col_idx += 1
+            st.markdown("### 🌐 Web Scraper Agent")
+            sc_meta = state["scraper_results"].get("metadata", {})
+            
+            urls_scraped = sc_meta.get('urls_scraped', 0)
+            
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.markdown("**Scraping Activity:**")
+                if urls_scraped > 0:
+                    st.success(f"✓ Successfully scraped {urls_scraped} URLs")
+                else:
+                    st.info("ℹ️ No URLs scraped (none available)")
+            
+            with col2:
+                st.markdown("**Status:**")
+                output = state["scraper_results"].get("output", "")
+                if "Error" not in output:
+                    content_length = len(output)
+                    st.text(f"Content extracted: {content_length} chars")
+                else:
+                    st.warning("⚠️ Some errors occurred")
+            
+            # Show scraped URLs
+            if urls_scraped > 0:
+                sources = state["scraper_results"].get("sources", [])
+                with st.expander(f"🔗 View {len(sources)} Scraped URLs", expanded=False):
+                    for i, url in enumerate(sources, 1):
+                        st.markdown(f"{i}. [{url[:60]}...]({url})")
+            
+            st.markdown("---")
         
+        # Math Agent
         if "math_results" in state:
-            with cols[col_idx % 2]:
-                st.success("✓ Math Calculation: Completed")
-                col_idx += 1
+            st.markdown("### 🔢 Math Agent")
+            
+            output = state["math_results"].get("output", "")
+            
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.markdown("**Calculation:**")
+                preview = output[:150] if len(output) > 150 else output
+                st.text(preview)
+            
+            with col2:
+                st.markdown("**Status:**")
+                if "Error" not in output:
+                    st.success("✓ Calculation completed")
+                else:
+                    st.error("✗ Calculation failed")
+            
+            st.markdown("---")
         
+        # Comparison Agent
         if "comparison_results" in state:
-            with cols[col_idx % 2]:
-                st.success("✓ Comparison: Completed")
-                col_idx += 1
+            st.markdown("### ⚖️ Comparison Agent")
+            comp_meta = state["comparison_results"].get("metadata", {})
+            
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.markdown("**Comparison Details:**")
+                items = comp_meta.get('items_compared', 0)
+                st.text(f"Items compared: {items}")
+            
+            with col2:
+                st.markdown("**Status:**")
+                output = state["comparison_results"].get("output", "")
+                if "Error" not in output:
+                    st.success("✓ Comparison completed")
+                else:
+                    st.error("✗ Comparison failed")
+            
+            # Show sources used
+            sources = state["comparison_results"].get("sources", [])
+            if sources:
+                with st.expander(f"📚 View {len(sources)} Comparison Sources", expanded=False):
+                    for i, source in enumerate(sources, 1):
+                        if source and source != "internal_calculation":
+                            st.text(f"{i}. {source[:80]}...")
+            
+            st.markdown("---")
+        
+        # Summary
+        total_agents = sum([
+            1 if "websearch_results" in state else 0,
+            1 if "scraper_results" in state else 0,
+            1 if "math_results" in state else 0,
+            1 if "comparison_results" in state else 0
+        ])
+        
+        st.info(f"📋 Total Agents Executed: {total_agents}")
 
 
 def display_final_answer(state: Dict[str, Any]):
@@ -124,6 +247,7 @@ def main():
         for example in examples:
             if st.button(example, key=f"example_{example[:20]}"):
                 st.session_state.current_query = example
+                
         
         st.markdown("---")
         display_recent_queries()

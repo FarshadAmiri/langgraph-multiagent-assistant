@@ -48,7 +48,14 @@ class ControllerAgent(BaseAgent):
         search_keywords = [
             "search", "find", "latest", "news", "information",
             "today", "current", "recent", "what is", "who is",
-            "conferences", "events", "deadlines"
+            "conferences", "events", "deadlines", "how much", "price",
+            "cost", "lease", "buy", "purchase"
+        ]
+        
+        # Scraping keywords (explicit user request)
+        scraping_keywords = [
+            "scrape", "extract", "web page", "webpage", "detailed information",
+            "full content", "article"
         ]
         
         # Math/calculation keywords
@@ -67,6 +74,9 @@ class ControllerAgent(BaseAgent):
         url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
         has_url = bool(re.search(url_pattern, query))
         
+        # Check for explicit scraping request
+        wants_scraping = any(keyword in query_lower for keyword in scraping_keywords)
+        
         # Determine agents
         # For comparison queries, we need to gather data first
         has_comparison = any(keyword in query_lower for keyword in comparison_keywords)
@@ -74,7 +84,11 @@ class ControllerAgent(BaseAgent):
         if any(keyword in query_lower for keyword in search_keywords) or has_comparison:
             agents.append("websearch")
         
-        if has_url or ("summarize" in query_lower and "url" in query_lower):
+        # Add scraper if explicitly requested or if URL provided
+        if has_url or wants_scraping or ("summarize" in query_lower and "url" in query_lower):
+            # Only add scraper after websearch if websearch is present
+            if "websearch" not in agents:
+                agents.append("websearch")
             agents.append("scraper")
         
         if any(keyword in query_lower for keyword in math_keywords):
