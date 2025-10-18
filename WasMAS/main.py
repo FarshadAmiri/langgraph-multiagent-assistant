@@ -1,4 +1,4 @@
-"""Main CLI interface for InfoMind multi-agent system"""
+"""Main CLI interface for WasMAS multi-agent system"""
 
 import sys
 import time
@@ -7,16 +7,16 @@ from pathlib import Path
 from typing import Dict, Any
 import json
 
-from infomind.graph import MultiAgentGraph
-from infomind.memory import MemoryStore
-from infomind.utils.logger import get_logger
+from WasMAS.graph import MultiAgentGraph
+from WasMAS.memory import MemoryStore
+from WasMAS.utils.logger import get_logger
 
 
-class InfoMindCLI:
-    """Command-line interface for InfoMind"""
+class WasMASCLI:
+    """Command-line interface for WasMAS"""
     
     def __init__(self):
-        self.logger = get_logger("InfoMindCLI")
+        self.logger = get_logger("WasMASCLI")
         self.graph = MultiAgentGraph()
         self.memory = MemoryStore()
         self.trace_dir = Path(__file__).parent / "logs" / "traces"
@@ -25,23 +25,50 @@ class InfoMindCLI:
     def print_header(self):
         """Print CLI header"""
         print("\n" + "=" * 70)
-        print("  📚 InfoMind - Multi-Agent Information Retrieval System")
+        print("  📚 WasMAS - Multi-Agent Information Retrieval System")
         print("=" * 70 + "\n")
     
     def print_activity_trace(self, state: Dict[str, Any]):
-        """Print activity trace"""
-        print("\n🔄 Activity Trace:")
+        """Print activity trace showing adaptive workflow"""
+        print("\n🔄 Adaptive Workflow Trace:")
         print("-" * 70)
         
-        agents_called = []
-        if "agents_to_call" in state:
-            agents_called = state["agents_to_call"]
+        iteration = state.get("iteration", 1)
         
-        if agents_called:
-            trace = " → ".join([f"[{agent.upper()}]" for agent in agents_called])
-            print(f"[USER] → [CONTROLLER] → {trace}")
-        else:
-            print("[USER] → [CONTROLLER] → [SYNTHESIZER]")
+        if iteration > 1:
+            print(f"⚡ ADAPTIVE ARCHITECTURE: {iteration} iterations")
+            print()
+        
+        # Show the complete flow
+        print("[USER]")
+        print("  ↓")
+        
+        for i in range(1, iteration + 1):
+            print(f"[CONTROLLER - Iteration {i}]")
+            
+            if i < iteration:
+                # Show what was done in this iteration
+                print("  ↓")
+                print("[EXECUTE AGENTS]")
+                print("  ↓")
+                print("⟲ [VALIDATE & REPLAN] - Missing data detected")
+                print("  ↓")
+            else:
+                # Final iteration
+                agents_called = state.get("agents_to_call", [])
+                if agents_called:
+                    print("  ↓")
+                    for agent in agents_called:
+                        print(f"[{agent.upper()}]")
+                        print("  ↓")
+        
+        print("[FINAL ANSWER]")
+        
+        # Show plan notes if available
+        plan_notes = state.get("plan_notes", "")
+        if plan_notes:
+            print()
+            print(f"📝 Final Plan: {plan_notes}")
         
         print("-" * 70 + "\n")
     
@@ -214,7 +241,7 @@ class InfoMindCLI:
 
 def main():
     """Main entry point"""
-    cli = InfoMindCLI()
+    cli = WasMASCLI()
     
     if len(sys.argv) > 1:
         # Single query mode

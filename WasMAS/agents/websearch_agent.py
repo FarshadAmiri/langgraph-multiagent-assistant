@@ -27,15 +27,23 @@ class WebSearchAgent(BaseAgent):
     def execute(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """Perform web search with retry and validation"""
         query = state.get("query", "")
+        missing_entities = state.get("missing_entities", [])
+        iteration = state.get("iteration", 0)
+        
         self._log_start(query)
         
         try:
             if not DDGS_AVAILABLE:
                 return self._mock_search(query)
             
+            # If this is a retry iteration with missing entities, search specifically for them
+            if iteration > 1 and missing_entities:
+                self.logger.info(f"Retry iteration {iteration}: Targeting missing entities: {missing_entities}")
+                return self._execute_targeted_search(query, missing_entities, state)
+            
             # Special handling for comparison queries - search for each entity
             query_lower = query.lower()
-            if "compare" in query_lower and ("vs" in query_lower or "with" in query_lower):
+            if "compare" in query_lower and ("vs" in query_lower or "with" in query_lower or "between" in query_lower):
                 return self._execute_comparison_search(query, state)
             
             # Regular search with retry
@@ -49,28 +57,103 @@ class WebSearchAgent(BaseAgent):
             )
             return state
     
+    def _execute_targeted_search(self, query: str, missing_entities: List[str], state: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute targeted search for specific missing entities"""
+        # Extract the metric from original query
+        query_lower = query.lower()
+        metric = ""
+        
+        if "gdp" in query_lower:
+            metric = "GDP growth"
+        elif "price" in query_lower or "cost" in query_lower:
+            metric = "price"
+        elif "inflation" in query_lower:
+            metric = "inflation rate"
+        
+        # Search for each missing entity
+        all_results = []
+        all_sources = []
+        combined_output = ""
+        
+        for entity in missing_entities:
+            # Create focused search query
+            search_query = f"{entity} {metric} statistics data"
+            if "last" in query_lower and "years" in query_lower:
+                import re
+                year_match = re.search(r'last\s+(\d+)\s+years?', query_lower)
+                if year_match:
+                    search_query += f" {year_match.group(1)} years"
+            
+            self.logger.info(f"Targeted search for {entity}: {search_query}")
+            
+            try:
+                with DDGS() as ddgs:
+                    results = list(ddgs.text(search_query, max_results=5))
+                    
+                    if results:
+                        combined_output += f"\n\n=== {entity} {metric} ===\n"
+                        for result in results[:3]:
+                            title = result.get('title', '')
+                            body = result.get('body', '')
+                            href = result.get('href', '')
+                            
+                            combined_output += f"\n{title}\n{body}\n"
+                            if href:
+                                all_sources.append(href)
+                        
+                        all_results.extend(results)
+            except Exception as e:
+                self.logger.error(f"Error searching for {entity}: {e}")
+                combined_output += f"\n\nCould not find data for {entity}\n"
+        
+        # Merge with existing results
+        existing = state.get("websearch_results", {})
+        if existing:
+            existing_output = existing.get("output", "")
+            combined_output = existing_output + combined_output
+            all_sources = existing.get("sources", []) + all_sources
+        
+        metadata = {
+            "original_query": query,
+            "search_type": "targeted_retry",
+            "targeted_entities": missing_entities,
+            "result_count": len(all_results)
+        }
+        
+        state["websearch_results"] = self._create_output(
+            output=combined_output.strip(),
+            sources=all_sources,
+            metadata=metadata
+        )
+        
+        self._log_finish(f"Targeted search completed for {len(missing_entities)} entities")
+        return state
+    
     def _execute_comparison_search(self, query: str, state: Dict[str, Any]) -> Dict[str, Any]:
         """Special search strategy for comparison queries - search each entity separately"""
         import re
         
-        # Extract entities being compared
-        query_lower = query.lower()
+        # Extract entities using proper pattern matching
+        entities = self._extract_entities_from_query(query)
         
-        # Try to extract country names or entities
-        # Simple approach: look for capitalized words or known patterns
-        words = query.split()
-        entities = []
-        # Skip common metric words
-        skip_words = {'GDP', 'Price', 'Cost', 'Compare', 'Versus'}
-        
-        for word in words:
-            clean = word.strip("'s,.")
-            if clean and clean[0].isupper() and len(clean) > 2 and clean not in skip_words:
-                entities.append(clean)
+        if not entities or len(entities) == 0:
+            # Fallback: try simple capitalized word extraction
+            words = query.split()
+            skip_words = {'GDP', 'Price', 'Cost', 'Compare', 'Versus', 'With', 'And'}
+            entities = []
+            for word in words:
+                clean = word.strip("'s,.")
+                if clean and clean[0].isupper() and len(clean) > 2 and clean not in skip_words:
+                    entities.append(clean)
         
         self.logger.info(f"Detected comparison entities: {entities}")
         
-        # Search for each entity separately
+        # If we still don't have at least 2 entities, log warning
+        if len(entities) < 2:
+            self.logger.warning(f"Expected 2+ entities for comparison, found {len(entities)}")
+        
+        # Continue with search
+        query_lower = query.lower()
         all_results = []
         all_sources = []
         combined_output = ""
@@ -123,6 +206,43 @@ class WebSearchAgent(BaseAgent):
         self._log_finish(f"Found {len(all_results)} results across {len(entities)} entities")
         state["websearch_results"] = output
         return state
+    
+    def _extract_entities_from_query(self, query: str) -> List[str]:
+        """Extract entities to compare using pattern matching"""
+        import re
+        
+        # Same patterns as controller agent (handles UK, USA, United Kingdom, etc.)
+        patterns = [
+            # Pattern for "compare X's ... with/and Y's"
+            r"compare\s+([A-Z][A-Z]+|[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)'s.*?(?:with|and|to|versus|vs)\s+([A-Z][A-Z]+|[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)'s",
+            # Pattern for "X vs Y"
+            r"([A-Z][A-Z]+|[A-Z][A-Za-z]+)(?:'s)?\s+(?:vs|versus)\s+([A-Z][A-Z]+|[A-Z][A-Za-z]+)(?:'s)?",
+            # Pattern for "between X and Y"
+            r"between\s+([A-Z][A-Z]+|[A-Z][A-Za-z]+)(?:'s)?\s+and\s+([A-Z][A-Z]+|[A-Z][A-Za-z]+)(?:'s)?",
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, query)
+            if match:
+                entity1 = match.group(1).strip()
+                entity2 = match.group(2).strip()
+                
+                # Clean entities
+                entity1 = self._clean_entity_name(entity1)
+                entity2 = self._clean_entity_name(entity2)
+                
+                if entity1 and entity2 and len(entity1) > 1 and len(entity2) > 1:
+                    return [entity1, entity2]
+        
+        return []
+    
+    def _clean_entity_name(self, entity: str) -> str:
+        """Clean entity name"""
+        remove_words = ["the", "a", "an", "of", "in", "last", "years", "year",
+                       "gdp", "growth", "rate", "price", "cost", "data", "statistics"]
+        words = entity.split()
+        words = [w for w in words if w.lower() not in remove_words]
+        return " ".join(words).strip()
     
     def _execute_regular_search(self, query: str, state: Dict[str, Any]) -> Dict[str, Any]:
         """Regular search with retry logic"""
@@ -183,45 +303,57 @@ class WebSearchAgent(BaseAgent):
         return state
     
     def _validate_results(self, results: List[Dict[str, Any]], original_query: str) -> bool:
-        """Check if search results seem relevant to the query"""
+        """Check if search results seem relevant to the query - GENERIC approach"""
         if not results:
             return False
         
-        # Extract key terms from query
+        # Extract all meaningful words from query (nouns, proper nouns, key terms)
         query_lower = original_query.lower()
-        key_terms = []
         
-        # Look for important keywords
-        if "gdp" in query_lower:
-            key_terms.append("gdp")
-        if "finland" in query_lower:
-            key_terms.append("finland")
-        if "singapore" in query_lower:
-            key_terms.append("singapore")
-        if "growth" in query_lower:
-            key_terms.extend(["growth", "rate", "percent"])
-        if "bmw" in query_lower:
-            key_terms.append("bmw")
-        if "price" in query_lower or "cost" in query_lower:
-            key_terms.extend(["price", "cost", "msrp"])
+        # Remove stop words and extract key terms
+        stop_words = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
+                     "of", "with", "is", "are", "was", "were", "been", "be", "have", "has",
+                     "had", "do", "does", "did", "will", "would", "should", "could", "may",
+                     "might", "can", "about", "how", "what", "when", "where", "which", "who",
+                     "much", "many", "more", "most", "some", "any", "all", "last", "years",
+                     "year", "data", "information", "find", "search", "tell", "me"}
         
-        # If no specific terms extracted, can't validate effectively
+        # Extract words (alphanumeric, length > 2)
+        import re
+        words = re.findall(r'\b[a-z]{3,}\b', query_lower)
+        
+        # Filter out stop words and get key terms
+        key_terms = [w for w in words if w not in stop_words]
+        
+        # Also extract capitalized words (entities) from original query
+        capitalized = re.findall(r'\b[A-Z][A-Za-z]+\b', original_query)
+        key_terms.extend([w.lower() for w in capitalized])
+        
+        # Remove duplicates
+        key_terms = list(set(key_terms))
+        
+        # If we couldn't extract any key terms, assume results are valid if they exist
         if not key_terms:
             return len(results) > 0
         
-        # Check if at least 2 results contain relevant terms
+        # Check if results contain key terms
         relevant_count = 0
-        for result in results[:5]:
+        for result in results[:5]:  # Check first 5 results
             title = (result.get("title", "") or "").lower()
             body = (result.get("body", "") or result.get("description", "") or "").lower()
             combined = title + " " + body
             
-            # Count how many key terms appear
-            matches = sum(1 for term in key_terms if term in combined)
-            if matches >= 1:
+            # Count how many key terms appear in this result
+            term_matches = sum(1 for term in key_terms if term in combined)
+            
+            # Result is relevant if it contains at least 30% of key terms
+            relevance_threshold = max(1, len(key_terms) * 0.3)
+            
+            if term_matches >= relevance_threshold:
                 relevant_count += 1
         
-        return relevant_count >= 2
+        # At least 40% of results should be relevant
+        return relevant_count >= max(2, len(results) * 0.4)
     
     def _create_alternative_query(self, original: str, optimized: str) -> str:
         """Create an alternative search query if initial one fails"""

@@ -1,12 +1,12 @@
-"""Streamlit UI for InfoMind multi-agent system"""
+"""Streamlit UI for WasMAS multi-agent system"""
 
 import streamlit as st
 import time
 from datetime import datetime
 from typing import Dict, Any
 
-from infomind.graph import MultiAgentGraph
-from infomind.memory import MemoryStore
+from WasMAS.graph import MultiAgentGraph
+from WasMAS.memory import MemoryStore
 
 
 def init_session_state():
@@ -211,7 +211,7 @@ def display_recent_queries():
                 except:
                     time_str = timestamp
                 
-                if st.button(f"🕐 {time_str}: {query[:30]}...", key=f"recent_{timestamp}"):
+                if st.button(f"{query[:50]}...", key=f"recent_{timestamp}"):
                     st.session_state.current_query = query
         else:
             st.info("No recent queries")
@@ -220,7 +220,7 @@ def display_recent_queries():
 def main():
     """Main Streamlit app"""
     st.set_page_config(
-        page_title="InfoMind - Multi-Agent System",
+        page_title="WasMAS - Multi-Agent System",
         page_icon="📚",
         layout="wide"
     )
@@ -229,7 +229,7 @@ def main():
     init_session_state()
     
     # Header
-    st.title("📚 InfoMind")
+    st.title("📚 WasMAS")
     st.markdown("### Multi-Agent Information Retrieval System")
     st.markdown("---")
     
@@ -238,10 +238,9 @@ def main():
         st.markdown("### 💡 Example Queries")
         
         examples = [
-            "Calculate the average of 10, 20, 30, 40, 50",
-            "Calculate the sum of 100, 200, 300",
+            "Latest BMW 5 Series lease costs?",
+            "compare UK's GDP growth in last 5 years with Germany's.",
             "Find latest news about AI",
-            "Compare Python and JavaScript",
         ]
         
         for example in examples:
@@ -255,7 +254,7 @@ def main():
         st.markdown("---")
         st.markdown("### ℹ️ About")
         st.markdown("""
-        InfoMind uses multiple specialized agents to answer your queries:
+        WasMAS uses multiple specialized agents to answer your queries:
         - **Controller**: Routes queries
         - **WebSearch**: Searches the web
         - **Scraper**: Extracts content

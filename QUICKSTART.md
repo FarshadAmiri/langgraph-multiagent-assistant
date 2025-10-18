@@ -1,6 +1,6 @@
-# InfoMind Quick Start Guide
+# WasMAS Quick Start Guide
 
-Get up and running with InfoMind in 5 minutes!
+Get up and running with WasMAS in 5 minutes!
 
 ## 📦 Installation
 
@@ -18,7 +18,7 @@ pip install -r requirements.txt
 ### Option 1: Interactive CLI
 
 ```bash
-python -m infomind.main
+python -m WasMAS.main
 ```
 
 Then type your query:
@@ -29,13 +29,13 @@ Then type your query:
 ### Option 2: Single Query
 
 ```bash
-python -m infomind.main "Calculate the sum of 5, 10, 15"
+python -m WasMAS.main "Calculate the sum of 5, 10, 15"
 ```
 
 ### Option 3: Web Interface
 
 ```bash
-streamlit run infomind/streamlit_app.py
+streamlit run WasMAS/streamlit_app.py
 ```
 
 Then open your browser to http://localhost:8501
@@ -44,21 +44,21 @@ Then open your browser to http://localhost:8501
 
 ### Mathematical Operations
 ```bash
-python -m infomind.main "Calculate the average of 10, 20, 30, 40, 50"
-python -m infomind.main "Find the median of 5, 15, 25, 35, 45"
-python -m infomind.main "Calculate the sum of 100, 200, 300"
+python -m WasMAS.main "Calculate the average of 10, 20, 30, 40, 50"
+python -m WasMAS.main "Find the median of 5, 15, 25, 35, 45"
+python -m WasMAS.main "Calculate the sum of 100, 200, 300"
 ```
 
 ### Web Search (requires internet)
 ```bash
-python -m infomind.main "Find latest news about AI"
-python -m infomind.main "Search for Python tutorials"
+python -m WasMAS.main "Find latest news about AI"
+python -m WasMAS.main "Search for Python tutorials"
 ```
 
 ### Comparison (requires internet)
 ```bash
-python -m infomind.main "Compare Python and JavaScript"
-python -m infomind.main "Compare gold and silver prices"
+python -m WasMAS.main "Compare Python and JavaScript"
+python -m WasMAS.main "Compare gold and silver prices"
 ```
 
 ## 📊 Understanding the Output
@@ -88,18 +88,18 @@ When you run a query, you'll see:
 
 ## 🔍 Where Are My Logs?
 
-Logs are saved in `infomind/logs/`:
-- **Agent logs**: `infomind/logs/{AgentName}.log`
-- **JSON traces**: `infomind/logs/traces/trace_{timestamp}.json`
-- **Memory DB**: `infomind/logs/memory.db`
+Logs are saved in `WasMAS/logs/`:
+- **Agent logs**: `WasMAS/logs/{AgentName}.log`
+- **JSON traces**: `WasMAS/logs/traces/trace_{timestamp}.json`
+- **Memory DB**: `WasMAS/logs/memory.db`
 
 View logs:
 ```bash
 # View recent math agent activity
-tail -20 infomind/logs/MathAgent.log
+tail -20 WasMAS/logs/MathAgent.log
 
 # View a trace file
-cat infomind/logs/traces/trace_*.json | jq
+cat WasMAS/logs/traces/trace_*.json | jq
 ```
 
 ## 🧪 Verify Installation
@@ -119,7 +119,7 @@ Results: 7 passed, 0 failed out of 7 tests
 Create a Python script:
 
 ```python
-from infomind.graph import MultiAgentGraph
+from WasMAS.graph import MultiAgentGraph
 
 # Initialize the system
 graph = MultiAgentGraph()
@@ -135,7 +135,7 @@ print(result["final_answer"]["output"])
 
 - **Read the full README** for detailed documentation
 - **Try the examples** in `examples.py`
-- **Explore the agents** in `infomind/agents/`
+- **Explore the agents** in `WasMAS/agents/`
 - **Customize** by adding your own agents
 
 ## 🐛 Troubleshooting
@@ -150,7 +150,7 @@ print(result["final_answer"]["output"])
 **Solution**: This is normal if you don't have internet access. The system still works with math and other operations.
 
 ### Issue: Permission errors on logs
-**Solution**: Make sure you have write permissions in the `infomind/logs` directory
+**Solution**: Make sure you have write permissions in the `WasMAS/logs` directory
 
 ## 💬 Get Help
 
@@ -160,10 +160,10 @@ print(result["final_answer"]["output"])
 
 ## 🎉 You're Ready!
 
-Start exploring InfoMind's multi-agent capabilities!
+Start exploring WasMAS's multi-agent capabilities!
 
 ```bash
-python -m infomind.main
+python -m WasMAS.main
 ```
 
 Happy querying! 🚀

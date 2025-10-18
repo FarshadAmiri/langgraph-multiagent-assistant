@@ -20,6 +20,9 @@ class AgentState(TypedDict):
     comparison_results: Dict[str, Any]
     final_answer: Dict[str, Any]
     routing_complete: bool
+    iteration: int
+    missing_entities: list
+    plan_notes: str
 
 
 class MultiAgentGraph:
@@ -38,7 +41,7 @@ class MultiAgentGraph:
         self.graph = self._build_graph()
     
     def _build_graph(self) -> StateGraph:
-        """Build the LangGraph workflow"""
+        """Build adaptive workflow with iterative loops"""
         
         # Create workflow
         workflow = StateGraph(AgentState)
@@ -54,13 +57,29 @@ class MultiAgentGraph:
         # Controller routes to agent executor
         workflow.add_edge("controller", "execute_agents")
         
-        # Agent executor routes to synthesizer
-        workflow.add_edge("execute_agents", "synthesizer")
+        # Agent executor conditionally routes based on completion
+        workflow.add_conditional_edges(
+            "execute_agents",
+            self._should_continue,
+            {
+                "continue": "controller",  # Loop back for more data
+                "synthesize": "synthesizer"  # Ready to synthesize
+            }
+        )
         
         # Synthesizer ends the workflow
         workflow.add_edge("synthesizer", END)
         
         return workflow.compile()
+    
+    def _should_continue(self, state: AgentState) -> str:
+        """Decide whether to continue gathering data or synthesize"""
+        routing_complete = state.get("routing_complete", False)
+        
+        if routing_complete:
+            return "synthesize"
+        else:
+            return "continue"
     
     def _controller_node(self, state: AgentState) -> AgentState:
         """Controller agent node"""
@@ -94,7 +113,7 @@ class MultiAgentGraph:
     
     def run(self, query: str) -> Dict[str, Any]:
         """
-        Run the multi-agent system with a query
+        Run the adaptive multi-agent system with a query
         
         Args:
             query: User's question
@@ -105,10 +124,13 @@ class MultiAgentGraph:
         initial_state = {
             "query": query,
             "agents_to_call": [],
-            "routing_complete": False
+            "routing_complete": False,
+            "iteration": 0,
+            "missing_entities": [],
+            "plan_notes": ""
         }
         
-        # Run the graph
+        # Run the adaptive graph (may loop multiple times)
         final_state = self.graph.invoke(initial_state)
         
         return final_state

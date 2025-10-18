@@ -1,8 +1,8 @@
-"""Simple tests for InfoMind system"""
+"""Simple tests for WasMAS system"""
 
 import sys
-from infomind.graph import MultiAgentGraph
-from infomind.memory import MemoryStore
+from WasMAS.graph import MultiAgentGraph
+from WasMAS.memory import MemoryStore
 
 
 def test_math_average():
@@ -104,7 +104,7 @@ def test_logging():
     result = graph.run("test logging")
     
     # Check if log directory exists
-    log_dir = Path("infomind/logs")
+    log_dir = Path("WasMAS/logs")
     assert log_dir.exists(), "Log directory not created"
     
     # Check if at least one log file exists
@@ -117,7 +117,7 @@ def test_logging():
 def run_all_tests():
     """Run all tests"""
     print("\n" + "=" * 70)
-    print("  InfoMind System Tests")
+    print("  WasMAS System Tests")
     print("=" * 70 + "\n")
     
     tests = [

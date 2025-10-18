@@ -1,4 +1,4 @@
-# InfoMind - Multi-Agent Information Retrieval System
+# WasMAS - Multi-Agent Information Retrieval System
 
 A sophisticated multi-agent Python system built with LangGraph and LangChain that coordinates multiple intelligent agents to answer complex queries using real-world tools.
 
@@ -38,7 +38,7 @@ Each agent passes structured messages containing:
 ## 📦 Project Structure
 
 ```
-infomind/
+WasMAS/
 ├── agents/
 │   ├── __init__.py
 │   ├── base_agent.py          # Base class for all agents
@@ -84,7 +84,7 @@ echo "OPENAI_API_KEY=your-key-here" > .env
 Run the CLI in interactive mode:
 
 ```bash
-python -m infomind.main
+python -m WasMAS.main
 ```
 
 ### Option 2: CLI Single Query Mode
@@ -92,7 +92,7 @@ python -m infomind.main
 Run a single query and exit:
 
 ```bash
-python -m infomind.main "Calculate the average of 10, 20, 30"
+python -m WasMAS.main "Calculate the average of 10, 20, 30"
 ```
 
 ### Option 3: Streamlit Web UI
@@ -100,7 +100,7 @@ python -m infomind.main "Calculate the average of 10, 20, 30"
 Run the Streamlit web interface:
 
 ```bash
-streamlit run infomind/streamlit_app.py
+streamlit run WasMAS/streamlit_app.py
 ```
 
 This provides a user-friendly web interface with:
@@ -112,10 +112,10 @@ This provides a user-friendly web interface with:
 
 ### Option 4: Programmatic Usage
 
-Use InfoMind in your Python code:
+Use WasMAS in your Python code:
 
 ```python
-from infomind.graph import MultiAgentGraph
+from WasMAS.graph import MultiAgentGraph
 
 graph = MultiAgentGraph()
 result = graph.run("Calculate the sum of 10 and 20")
@@ -128,23 +128,23 @@ See `examples.py` for more usage examples.
 
 ```bash
 # Mathematical operations
-python -m infomind.main "Calculate the average of 15, 25, 35, 45"
+python -m WasMAS.main "Calculate the average of 15, 25, 35, 45"
 
 # Web search
-python -m infomind.main "Find latest news about AI developments"
+python -m WasMAS.main "Find latest news about AI developments"
 
 # Comparison
-python -m infomind.main "Compare Python and JavaScript"
+python -m WasMAS.main "Compare Python and JavaScript"
 
 # Complex queries
-python -m infomind.main "Find and compare recent news about OpenAI and Anthropic"
+python -m WasMAS.main "Find and compare recent news about OpenAI and Anthropic"
 ```
 
 ## 📊 Output Example
 
 ```
 ================================================================================
-  📚 InfoMind - Multi-Agent Information Retrieval System
+  📚 WasMAS - Multi-Agent Information Retrieval System
 ================================================================================
 
 📝 Query: Calculate the average of 10, 20, 30
@@ -185,13 +185,13 @@ Average: 20.00 (calculated from 3 values: [10.0, 20.0, 30.0])
 
 ### Logging
 
-Logs are stored in `infomind/logs/`:
+Logs are stored in `WasMAS/logs/`:
 - Individual agent logs: `{agent_name}.log`
 - Execution traces: `traces/trace_{timestamp}.json`
 
 ### Memory
 
-Memory database is stored at `infomind/logs/memory.db`:
+Memory database is stored at `WasMAS/logs/memory.db`:
 - Stores all interactions
 - Enables context-aware follow-up queries
 - Can be cleared with `memory.clear_old_interactions(days=30)`
@@ -201,7 +201,7 @@ Memory database is stored at `infomind/logs/memory.db`:
 The system can be tested with various query types:
 
 ```python
-from infomind.graph import MultiAgentGraph
+from WasMAS.graph import MultiAgentGraph
 
 graph = MultiAgentGraph()
 result = graph.run("Calculate the sum of 5 and 10")
@@ -234,7 +234,7 @@ JSON traces in `logs/traces/` contain:
 1. Create a new agent class inheriting from `BaseAgent`:
 
 ```python
-from infomind.agents.base_agent import BaseAgent
+from WasMAS.agents.base_agent import BaseAgent
 
 class MyNewAgent(BaseAgent):
     def __init__(self):

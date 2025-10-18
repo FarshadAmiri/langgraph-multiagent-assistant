@@ -1,4 +1,4 @@
-# InfoMind System Architecture
+# WasMAS System Architecture
 
 ## 🏗️ High-Level Architecture
 
@@ -247,14 +247,14 @@ CREATE TABLE interactions (
 
 ### Logging Files
 ```
-infomind/logs/
+WasMAS/logs/
 ├── ControllerAgent.log
 ├── WebSearchAgent.log
 ├── WebScraperAgent.log
 ├── MathAgent.log
 ├── ComparisonAgent.log
 ├── AnswerSynthesizer.log
-├── InfoMindCLI.log
+├── WasMASCLI.log
 ├── memory.db
 └── traces/
     ├── trace_20251015_120747.json
@@ -310,8 +310,8 @@ Query: "Calculate the average of 10, 20, 30"
 ## 🔧 Configuration Points
 
 1. **API Keys**: Via .env file
-2. **Log Directory**: `infomind/logs/`
-3. **Database Path**: `infomind/logs/memory.db`
+2. **Log Directory**: `WasMAS/logs/`
+3. **Database Path**: `WasMAS/logs/memory.db`
 4. **Max Search Results**: 5 (configurable)
 5. **Max URLs to Scrape**: 3 (configurable)
 
@@ -319,7 +319,7 @@ Query: "Calculate the average of 10, 20, 30"
 
 To add a new agent:
 
-1. Create class in `infomind/agents/new_agent.py`
+1. Create class in `WasMAS/agents/new_agent.py`
 2. Inherit from `BaseAgent`
 3. Implement `execute(state)` method
 4. Register in `graph.py`
@@ -337,7 +337,7 @@ To add a new agent:
 
 ## 📝 Summary
 
-InfoMind's architecture is:
+WasMAS's architecture is:
 - ✅ Modular and maintainable
 - ✅ Based on LangGraph StateGraph
 - ✅ Fully logged and traceable

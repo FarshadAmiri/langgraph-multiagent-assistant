@@ -1,6 +1,6 @@
-# Contributing to InfoMind
+# Contributing to WasMAS
 
-Thank you for your interest in contributing to InfoMind! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to WasMAS! This document provides guidelines and instructions for contributing.
 
 ## 🚀 Getting Started
 
@@ -24,7 +24,7 @@ Thank you for your interest in contributing to InfoMind! This document provides 
 ## 🏗️ Project Structure
 
 ```
-infomind/
+WasMAS/
 ├── agents/          # Agent implementations
 ├── utils/           # Utility modules (logging, etc.)
 ├── graph.py         # LangGraph orchestration
@@ -83,7 +83,7 @@ def example_function(param: str) -> dict:
 
 To add a new agent:
 
-1. Create a new file in `infomind/agents/`:
+1. Create a new file in `WasMAS/agents/`:
 
 ```python
 from .base_agent import BaseAgent
@@ -168,7 +168,7 @@ When reporting bugs, please include:
 3. Expected behavior
 4. Actual behavior
 5. System information (OS, Python version)
-6. Relevant logs from `infomind/logs/`
+6. Relevant logs from `WasMAS/logs/`
 
 ## 💡 Feature Requests
 
@@ -235,4 +235,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 ## 🙏 Thank You!
 
-Your contributions help make InfoMind better for everyone!
+Your contributions help make WasMAS better for everyone!

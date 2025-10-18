@@ -1,8 +1,8 @@
-# InfoMind Implementation Summary
+# WasMAS Implementation Summary
 
 ## 📋 Overview
 
-This document summarizes the complete implementation of InfoMind, a multi-agent Python project system using LangGraph and LangChain.
+This document summarizes the complete implementation of WasMAS, a multi-agent Python project system using LangGraph and LangChain.
 
 ## ✅ Completed Features
 
@@ -10,37 +10,37 @@ This document summarizes the complete implementation of InfoMind, a multi-agent 
 
 All 6 required agents have been implemented:
 
-#### ControllerAgent (`infomind/agents/controller_agent.py`)
+#### ControllerAgent (`WasMAS/agents/controller_agent.py`)
 - Interprets user queries using keyword analysis
 - Routes queries to appropriate specialist agents
 - Handles sequential agent orchestration
 - **Status**: ✅ Fully implemented and tested
 
-#### WebSearchAgent (`infomind/agents/websearch_agent.py`)
+#### WebSearchAgent (`WasMAS/agents/websearch_agent.py`)
 - Performs live web searches using DuckDuckGo API
 - Returns formatted results with sources
 - Handles search errors gracefully
 - **Status**: ✅ Fully implemented (requires internet)
 
-#### WebScraperAgent (`infomind/agents/scraper_agent.py`)
+#### WebScraperAgent (`WasMAS/agents/scraper_agent.py`)
 - Extracts content from URLs using BeautifulSoup4
 - Cleans and formats extracted text
 - Handles multiple URLs
 - **Status**: ✅ Fully implemented (requires internet)
 
-#### MathAgent (`infomind/agents/math_agent.py`)
+#### MathAgent (`WasMAS/agents/math_agent.py`)
 - Performs arithmetic operations (sum, average, median)
 - Safe evaluation of mathematical expressions
 - Extracts numbers from natural language
 - **Status**: ✅ Fully implemented and tested
 
-#### ComparisonAgent (`infomind/agents/comparison_agent.py`)
+#### ComparisonAgent (`WasMAS/agents/comparison_agent.py`)
 - Compares outputs from multiple agents
 - Summarizes differences and similarities
 - Aggregates data from various sources
 - **Status**: ✅ Fully implemented
 
-#### AnswerSynthesizer (`infomind/agents/synthesizer_agent.py`)
+#### AnswerSynthesizer (`WasMAS/agents/synthesizer_agent.py`)
 - Combines all agent outputs into coherent answer
 - Provides concise reasoning
 - Cites all sources
@@ -49,7 +49,7 @@ All 6 required agents have been implemented:
 
 ### 2. LangGraph Orchestration
 
-**File**: `infomind/graph.py`
+**File**: `WasMAS/graph.py`
 
 Features:
 - Sequential execution flow using StateGraph
@@ -61,7 +61,7 @@ Features:
 
 ### 3. Memory System
 
-**File**: `infomind/memory.py`
+**File**: `WasMAS/memory.py`
 
 Features:
 - SQLite-based persistent storage
@@ -74,14 +74,14 @@ Features:
 
 ### 4. Logging & Monitoring
 
-**File**: `infomind/utils/logger.py`
+**File**: `WasMAS/utils/logger.py`
 
 Features:
-- Per-agent log files in `infomind/logs/`
+- Per-agent log files in `WasMAS/logs/`
 - Console and file output
 - Structured logging format
 - Timestamped entries
-- JSON execution traces in `infomind/logs/traces/`
+- JSON execution traces in `WasMAS/logs/traces/`
 
 Each agent logs:
 - Start time and finish time
@@ -93,7 +93,7 @@ Each agent logs:
 
 ### 5. User Interfaces
 
-#### CLI Interface (`infomind/main.py`)
+#### CLI Interface (`WasMAS/main.py`)
 - Interactive mode for continuous queries
 - Single-query mode for one-off questions
 - Activity trace visualization
@@ -101,7 +101,7 @@ Each agent logs:
 - Runtime metrics
 - **Status**: ✅ Fully implemented and tested
 
-#### Streamlit Web UI (`infomind/streamlit_app.py`)
+#### Streamlit Web UI (`WasMAS/streamlit_app.py`)
 - User-friendly web interface
 - Real-time agent activity display
 - Example queries
@@ -112,7 +112,7 @@ Each agent logs:
 
 #### Programmatic API
 ```python
-from infomind.graph import MultiAgentGraph
+from WasMAS.graph import MultiAgentGraph
 graph = MultiAgentGraph()
 result = graph.run("your query")
 ```
@@ -122,7 +122,7 @@ result = graph.run("your query")
 
 ```
 langgraph-multiagent-assistant/
-├── infomind/
+├── WasMAS/
 │   ├── __init__.py
 │   ├── agents/
 │   │   ├── __init__.py
@@ -208,10 +208,10 @@ pip install -r requirements.txt
 ```
 
 ### Usage Options
-1. Interactive CLI: `python -m infomind.main`
-2. Single query: `python -m infomind.main "your query"`
-3. Web UI: `streamlit run infomind/streamlit_app.py`
-4. Python API: `from infomind.graph import MultiAgentGraph`
+1. Interactive CLI: `python -m WasMAS.main`
+2. Single query: `python -m WasMAS.main "your query"`
+3. Web UI: `streamlit run WasMAS/streamlit_app.py`
+4. Python API: `from WasMAS.graph import MultiAgentGraph`
 
 ## ✨ Key Features
 
@@ -265,7 +265,7 @@ Example structure provided in CONTRIBUTING.md
 - `.env` file support for API keys (optional)
 - `.gitignore` properly configured to exclude logs and cache
 - `setup.py` for pip installation
-- Console script entry point: `infomind` command
+- Console script entry point: `WasMAS` command
 
 ## ✅ Requirements Checklist
 
@@ -286,7 +286,7 @@ Example structure provided in CONTRIBUTING.md
 
 ## 🎉 Conclusion
 
-InfoMind is a fully functional multi-agent system that meets all specified requirements:
+WasMAS is a fully functional multi-agent system that meets all specified requirements:
 
 - ✅ All 6 core agents implemented
 - ✅ LangGraph orchestration working

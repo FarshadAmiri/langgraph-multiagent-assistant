@@ -1,6 +1,6 @@
-"""Example usage of InfoMind multi-agent system"""
+"""Example usage of WasMAS multi-agent system"""
 
-from infomind.graph import MultiAgentGraph
+from WasMAS.graph import MultiAgentGraph
 
 
 def example_math_calculation():
@@ -82,7 +82,7 @@ def main():
     """Run all examples"""
     print("\n")
     print("=" * 70)
-    print("  InfoMind - Multi-Agent System Examples")
+    print("  WasMAS - Multi-Agent System Examples")
     print("=" * 70)
     
     # Run examples
@@ -94,7 +94,7 @@ def main():
     print("\nNote: The following examples require internet connectivity:")
     print("- Web Search")
     print("- Comparison (when it requires web data)")
-    print("\nYou can run these interactively using: python -m infomind.main")
+    print("\nYou can run these interactively using: python -m WasMAS.main")
 
 
 if __name__ == "__main__":
